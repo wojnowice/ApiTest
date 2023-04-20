@@ -1,38 +1,44 @@
-import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
-import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class BasicAPITest extends BaseTest {
+import static io.restassured.RestAssured.given;
+
+public class BasicPostPetApiTest extends BaseTest {
 
     @Test
-    public void createNewPet()
-    {
-        JSONObject jsonObject = new JSONObject();
+    public void testCreateNewPet() {
+        // Create a new pet object using the Pet POJO
+        Pet newPet = new Pet(
+                0,
+                new Category(0, "string"),
+                "doggie",
+                new String[]{"string"},
+                new Tag[]{new Tag(0, "string")},
+                "available"
+        );
 
-        jsonObject.put("id", 0);
-        jsonObject.put("name", "doggie");
-        jsonObject.put("status", "available");
-
-
-        RequestSpecification request = RestAssured.given();
-        Response response = request
-                .header("accept","application/json")
-                .header("Content-Type","application/json")
-                .body(jsonObject.toString())
-                .post();
+        // Send the POST request to add a new pet to the store
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(newPet)
+                .when()
+                .post("/pet")
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
         response.prettyPrint();
 
+        // Verify the response code and make assertions for response
         Assert.assertEquals(response.getStatusCode(),200);
         Assert.assertEquals(response.getHeader("content-type"),"application/json");
 
         String responseBodyAsString = response.getBody().asString();
         Assert.assertTrue(responseBodyAsString.contains("id"));
         Assert.assertTrue(responseBodyAsString.contains("name"));
-
         Assert.assertTrue(responseBodyAsString.contains("status"));
 
         String name = JsonPath.from(responseBodyAsString).get("name");

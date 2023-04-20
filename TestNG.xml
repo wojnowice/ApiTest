@@ -2,7 +2,7 @@
 <suite name="API Testing Suite" verbose="1">
     <test name="Nopackage">
         <classes>
-            <class name="BasicAPITest"/>
+            <class name="BasicPostPetApiTest"/>
         </classes>
     </test>
 </suite>
